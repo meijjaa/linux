@@ -231,6 +231,7 @@ typedef struct _drm_i915_sarea {
 #define DRM_I915_GEM_CONTEXT_GETPARAM	0x34
 #define DRM_I915_GEM_CONTEXT_SETPARAM	0x35
 #define DRM_I915_SET_PLANE_ZORDER	0x36
+#define DRM_I915_GEM_ACCESS_USERDATA	0x3c
 
 #define DRM_IOCTL_I915_INIT		DRM_IOW( DRM_COMMAND_BASE + DRM_I915_INIT, drm_i915_init_t)
 #define DRM_IOCTL_I915_FLUSH		DRM_IO ( DRM_COMMAND_BASE + DRM_I915_FLUSH)
@@ -285,6 +286,7 @@ typedef struct _drm_i915_sarea {
 #define DRM_IOCTL_I915_GEM_USERPTR			DRM_IOWR (DRM_COMMAND_BASE + DRM_I915_GEM_USERPTR, struct drm_i915_gem_userptr)
 #define DRM_IOCTL_I915_GEM_CONTEXT_GETPARAM	DRM_IOWR (DRM_COMMAND_BASE + DRM_I915_GEM_CONTEXT_GETPARAM, struct drm_i915_gem_context_param)
 #define DRM_IOCTL_I915_GEM_CONTEXT_SETPARAM	DRM_IOWR (DRM_COMMAND_BASE + DRM_I915_GEM_CONTEXT_SETPARAM, struct drm_i915_gem_context_param)
+#define DRM_IOCTL_I915_GEM_ACCESS_USERDATA	DRM_IOWR(DRM_COMMAND_BASE + DRM_I915_GEM_ACCESS_USERDATA, struct drm_i915_gem_access_userdata)
 
 /* Allow drivers to submit batchbuffers directly to hardware, relying
  * on the security mechanisms provided by hardware.
@@ -923,6 +925,21 @@ struct drm_i915_gem_get_tiling {
 	 * mmap mapping whilst bound.
 	 */
 	__u32 phys_swizzle_mode;
+};
+
+struct drm_i915_gem_access_userdata {
+	/** Handle of the buffer whose userdata will be accessed */
+	__u32 handle;
+
+	/**
+	* Userdata:  This quantity is user defined
+	*/
+	__u32 userdata;
+
+	/**
+	* Write: 0=read userdata, 1=write userdata
+	*/
+	__u32 write;
 };
 
 struct drm_i915_gem_get_aperture {

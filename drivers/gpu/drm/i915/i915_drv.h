@@ -2150,6 +2150,9 @@ struct drm_i915_gem_object {
 	/** Record of address bit 17 of each page at last unbind. */
 	unsigned long *bit_17;
 
+	/** Object userdata */
+	uint32_t userdata;
+
 	union {
 		/** for phy allocated objects */
 		struct drm_dma_handle *phys_handle;
@@ -3017,6 +3020,8 @@ int i915_gem_object_attach_phys(struct drm_i915_gem_object *obj,
 int i915_gem_open(struct drm_device *dev, struct drm_file *file);
 void i915_gem_release(struct drm_device *dev, struct drm_file *file);
 
+int i915_gem_access_userdata(struct drm_device *dev, void *data,
+		   struct drm_file *file);
 uint32_t
 i915_gem_get_gtt_size(struct drm_device *dev, uint32_t size, int tiling_mode);
 uint32_t

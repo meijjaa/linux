@@ -5266,3 +5266,30 @@ fail:
 	drm_gem_object_unreference(&obj->base);
 	return ERR_PTR(ret);
 }
+
+/**
+ * Reads/writes userdata for the object.
+ */
+int
+i915_gem_access_userdata(struct drm_device *dev, void *data,
+		   struct drm_file *file)
+{
+	struct drm_i915_gem_access_userdata *args = data;
+	struct drm_i915_gem_object *obj;
+
+	obj = to_intel_bo(drm_gem_object_lookup(dev, file, args->handle));
+	if (&obj->base == NULL)
+		return -ENOENT;
+
+	mutex_lock(&dev->struct_mutex);
+
+	if (args->write)
+		obj->userdata = args->userdata;
+	else
+		args->userdata = obj->userdata;
+
+	drm_gem_object_unreference(&obj->base);
+	mutex_unlock(&dev->struct_mutex);
+
+	return 0;
+}
