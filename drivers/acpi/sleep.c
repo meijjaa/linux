@@ -21,6 +21,7 @@
 #include <linux/module.h>
 #include <asm/io.h>
 #include <trace/events/power.h>
+#include <asm/mwait.h>
 
 #include "internal.h"
 #include "sleep.h"
@@ -388,7 +389,12 @@ static int __acpi_pm_prepare(void)
  */
 static int acpi_pm_prepare(void)
 {
-	int error = __acpi_pm_prepare();
+	int error = 0;
+
+	if (acpi_target_sleep_state == ACPI_STATE_S0)
+		return error;
+
+	error = __acpi_pm_prepare();
 	if (!error)
 		error = acpi_pm_pre_suspend();
 
@@ -414,11 +420,11 @@ static void acpi_pm_finish(void)
 	struct device *pwr_btn_dev;
 	u32 acpi_state = acpi_target_sleep_state;
 
-	acpi_ec_unblock_transactions();
-	suspend_nvs_free();
-
 	if (acpi_state == ACPI_STATE_S0)
 		return;
+
+	acpi_ec_unblock_transactions();
+	suspend_nvs_free();
 
 	printk(KERN_INFO PREFIX "Waking up from system sleep state S%d\n",
 		acpi_state);
@@ -465,6 +471,9 @@ static void acpi_pm_start(u32 acpi_state)
  */
 static void acpi_pm_end(void)
 {
+	if (acpi_target_sleep_state == ACPI_STATE_S0)
+		return;
+
 	acpi_scan_lock_release();
 	/*
 	 * This is necessary in case acpi_pm_finish() is not called during a
@@ -492,19 +501,34 @@ static u32 acpi_suspend_states[] = {
  */
 static int acpi_suspend_begin(suspend_state_t pm_state)
 {
-	u32 acpi_state = acpi_suspend_states[pm_state];
+	u32 acpi_state;
 	int error;
+
+	acpi_state = acpi_suspend_states[pm_state];
+
+	if (!sleep_states[acpi_state]) {
+		/*
+		 * exception: if the platform architectures support
+		 * low power S0idle mode, we should return ACPI_STATE_S0
+		 * here to let the hardware manage power autonomously
+		 */
+		if (pm_state == PM_SUSPEND_MEM && low_power_s0idle) {
+			acpi_state = ACPI_STATE_S0;
+		} else {
+			pr_err("ACPI does not support sleep state S%u\n",
+				acpi_state);
+			return -ENOSYS;
+		}
+	}
+	if (acpi_state > ACPI_STATE_S1)
+		pm_set_suspend_via_firmware();
+
+	if (acpi_state == ACPI_STATE_S0)
+		return 0;
 
 	error = (nvs_nosave || nvs_nosave_s3) ? 0 : suspend_nvs_alloc();
 	if (error)
 		return error;
-
-	if (!sleep_states[acpi_state]) {
-		pr_err("ACPI does not support sleep state S%u\n", acpi_state);
-		return -ENOSYS;
-	}
-	if (acpi_state > ACPI_STATE_S1)
-		pm_set_suspend_via_firmware();
 
 	acpi_pm_start(acpi_state);
 	return 0;
@@ -521,13 +545,21 @@ static int acpi_suspend_begin(suspend_state_t pm_state)
 static int acpi_suspend_enter(suspend_state_t pm_state)
 {
 	acpi_status status = AE_OK;
-	u32 acpi_state = acpi_target_sleep_state;
+	u32 acpi_state = acpi_target_sleep_state, tmp;
 	int error;
 
 	ACPI_FLUSH_CPU_CACHE();
 
 	trace_suspend_resume(TPS("acpi_suspend"), acpi_state, true);
 	switch (acpi_state) {
+	case ACPI_STATE_S0:
+		pm_suspend_dev_state();
+		pr_info(PREFIX "suspend to mwait\n");
+		__monitor((void *)&tmp, 0, 0);
+		smp_mb();
+		__mwait(0x64, 1);
+		pr_info(PREFIX "resume from mwait\n");
+		return 0;
 	case ACPI_STATE_S1:
 		barrier();
 		status = acpi_enter_sleep_state(acpi_state);
