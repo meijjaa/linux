@@ -526,6 +526,11 @@ static inline void mmc_retune_needed(struct mmc_host *host)
 		host->need_retune = 1;
 }
 
+static inline void mmc_retune_not_needed(struct mmc_host *host)
+{
+	host->need_retune = 0;
+}
+
 static inline void mmc_retune_recheck(struct mmc_host *host)
 {
 	if (host->hold_retune <= 1)
