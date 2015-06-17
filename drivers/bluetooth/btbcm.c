@@ -239,6 +239,8 @@ static const struct {
 	const char *name;
 } bcm_uart_subver_table[] = {
 	{ 0x410e, "BCM43341B0"	},	/* 002.001.014 */
+	{ 0x4406, "BCM4324B3"	},	/* 002.004.006 */
+	{ 0x610c, "BCM4354"	},	/* 003.001.012 */
 	{ }
 };
 
@@ -275,6 +277,7 @@ int btbcm_initialize(struct hci_dev *hdev, char *fw_name, size_t len)
 
 	switch ((rev & 0xf000) >> 12) {
 	case 0:
+	case 1:
 	case 3:
 		for (i = 0; bcm_uart_subver_table[i].name; i++) {
 			if (subver == bcm_uart_subver_table[i].subver) {
