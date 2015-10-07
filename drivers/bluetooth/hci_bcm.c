@@ -295,6 +295,29 @@ static int bcm_set_baudrate(struct hci_uart *hu, unsigned int speed)
 
 	kfree_skb(skb);
 
+        return 0;
+}
+
+static int bcm_set_diag(struct hci_dev *hdev, bool enable)
+{
+	struct hci_uart *hu = hci_get_drvdata(hdev);
+	struct bcm_data *bcm = hu->priv;
+	struct sk_buff *skb;
+
+	if (!test_bit(HCI_RUNNING, &hdev->flags))
+		return -ENETDOWN;
+
+	skb = bt_skb_alloc(3, GFP_KERNEL);
+	if (IS_ERR(skb))
+		return PTR_ERR(skb);
+
+	*skb_put(skb, 1) = BCM_LM_DIAG_PKT;
+	*skb_put(skb, 1) = 0xf0;
+	*skb_put(skb, 1) = enable;
+
+	skb_queue_tail(&bcm->txq, skb);
+	hci_uart_tx_wakeup(hu);
+
 	return 0;
 }
 
@@ -390,6 +413,7 @@ static int bcm_setup(struct hci_uart *hu)
 
 	bt_dev_dbg(hu->hdev, "hu %p", hu);
 
+	hu->hdev->set_diag = bcm_set_diag;
 	hu->hdev->set_bdaddr = btbcm_set_bdaddr;
 
 	err = btbcm_initialize(hu->hdev, fw_name, sizeof(fw_name));
