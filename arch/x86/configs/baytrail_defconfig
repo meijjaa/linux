@@ -1,6 +1,10 @@
 #
 # Automatically generated file; DO NOT EDIT.
+<<<<<<< HEAD
 # Linux/x86 4.3.0 Kernel Configuration
+=======
+# Linux/x86 4.4.0-rc4 Kernel Configuration
+>>>>>>> 05a7f28... Update baytrail_defconfig to 4.4-rc4
 #
 # CONFIG_64BIT is not set
 CONFIG_X86_32=y
@@ -1604,6 +1608,7 @@ CONFIG_SCSI_LOWLEVEL=y
 # CONFIG_MEGARAID_SAS is not set
 # CONFIG_SCSI_MPT2SAS is not set
 # CONFIG_SCSI_MPT3SAS is not set
+# CONFIG_SCSI_MPT2SAS is not set
 CONFIG_SCSI_UFSHCD=m
 # CONFIG_SCSI_UFSHCD_PCI is not set
 # CONFIG_SCSI_UFSHCD_PLATFORM is not set
@@ -1790,6 +1795,7 @@ CONFIG_ATL1=m
 CONFIG_ATL1E=m
 CONFIG_ATL1C=m
 CONFIG_ALX=m
+# CONFIG_NET_VENDOR_AURORA is not set
 CONFIG_NET_CADENCE=y
 # CONFIG_MACB is not set
 CONFIG_NET_VENDOR_BROADCOM=y
