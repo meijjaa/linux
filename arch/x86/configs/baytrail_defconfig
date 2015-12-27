@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/x86 4.1.14 Kernel Configuration
+# Linux/x86 4.1.15 Kernel Configuration
 #
 # CONFIG_64BIT is not set
 CONFIG_X86_32=y
@@ -1682,7 +1682,7 @@ CONFIG_INPUT_EVDEV=y
 CONFIG_INPUT_KEYBOARD=y
 # CONFIG_KEYBOARD_ADP5588 is not set
 # CONFIG_KEYBOARD_ADP5589 is not set
-# CONFIG_KEYBOARD_ATKBD is not set
+CONFIG_KEYBOARD_ATKBD=y
 # CONFIG_KEYBOARD_QT1070 is not set
 # CONFIG_KEYBOARD_QT2160 is not set
 # CONFIG_KEYBOARD_LKKBD is not set
@@ -3788,6 +3788,7 @@ CONFIG_STAGING=y
 # CONFIG_R8712U is not set
 # CONFIG_R8188EU is not set
 # CONFIG_R8723AU is not set
+# CONFIG_RTL8723BS is not set
 # CONFIG_RTS5208 is not set
 
 #
