@@ -731,6 +731,24 @@ static int hci_uart_tty_ioctl(struct tty_struct *tty, struct file *file,
 	return err;
 }
 
+#ifdef CONFIG_COMPAT
+static long hci_uart_tty_compat_ioctl(struct tty_struct *tty, struct file *file,
+				      unsigned int cmd, unsigned long arg)
+{
+	switch (cmd) {
+	case HCIUARTSETPROTO:
+	case HCIUARTGETPROTO:
+	case HCIUARTGETDEVICE:
+	case HCIUARTSETFLAGS:
+	case HCIUARTGETFLAGS:
+		return hci_uart_tty_ioctl(tty, file, cmd,
+					  (unsigned long)compat_ptr(arg));
+	}
+
+	return -ENOIOCTLCMD;
+}
+#endif
+
 /*
  * We don't provide read/write/poll interface for user space.
  */
@@ -769,6 +787,9 @@ static int __init hci_uart_init(void)
 	hci_uart_ldisc.read		= hci_uart_tty_read;
 	hci_uart_ldisc.write		= hci_uart_tty_write;
 	hci_uart_ldisc.ioctl		= hci_uart_tty_ioctl;
+#ifdef CONFIG_COMPAT
+	hci_uart_ldisc.compat_ioctl	= hci_uart_tty_compat_ioctl;
+#endif
 	hci_uart_ldisc.poll		= hci_uart_tty_poll;
 	hci_uart_ldisc.receive_buf	= hci_uart_tty_receive;
 	hci_uart_ldisc.write_wakeup	= hci_uart_tty_wakeup;
