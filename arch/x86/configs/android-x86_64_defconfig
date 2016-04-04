@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/x86 4.1.15 Kernel Configuration
+# Linux/x86 4.1.20 Kernel Configuration
 #
 CONFIG_64BIT=y
 CONFIG_X86_64=y
@@ -5572,7 +5572,6 @@ CONFIG_THUNDERBOLT=m
 #
 CONFIG_ANDROID=y
 CONFIG_ANDROID_BINDER_IPC=y
-CONFIG_ANDROID_BINDER_IPC_32BIT=y
 
 #
 # Firmware Drivers
