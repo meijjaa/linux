@@ -497,5 +497,4 @@ static inline void page_key_write(void *address) {}
 
 #endif /* !CONFIG_ARCH_SAVE_PAGE_KEYS */
 
-extern void pm_suspend_dev_state(void);
 #endif /* _LINUX_SUSPEND_H */

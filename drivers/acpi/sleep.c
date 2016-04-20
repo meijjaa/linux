@@ -551,7 +551,6 @@ static int acpi_suspend_enter(suspend_state_t pm_state)
 	trace_suspend_resume(TPS("acpi_suspend"), acpi_state, true);
 	switch (acpi_state) {
 	case ACPI_STATE_S0:
-		pm_suspend_dev_state();
 		pr_info(PREFIX "suspend to mwait\n");
 		__monitor((void *)&tmp, 0, 0);
 		smp_mb();
