@@ -2431,6 +2431,8 @@ brcmf_cfg80211_get_station(struct wiphy *wiphy, struct net_device *ndev,
 {
 	struct brcmf_if *ifp = netdev_priv(ndev);
 	s32 err = 0;
+	struct brcmf_scb_val_le scb_val;
+	int rssi;
 	struct brcmf_sta_info_le sta_info_le;
 	u32 sta_flags;
 	u32 is_tdls_peer;
@@ -2507,6 +2509,21 @@ brcmf_cfg80211_get_station(struct wiphy *wiphy, struct net_device *ndev,
 					sta_info_le.rssi[i];
 				total_rssi += sta_info_le.rssi[i];
 				count_rssi++;
+			}
+		}
+		if (test_bit(BRCMF_VIF_STATUS_CONNECTED,
+			     &ifp->vif->sme_state)) {
+			memset(&scb_val, 0, sizeof(scb_val));
+			err = brcmf_fil_cmd_data_get(ifp, BRCMF_C_GET_RSSI,
+						     &scb_val, sizeof(scb_val));
+			if (err) {
+				brcmf_err("Could not get rssi (%d)\n", err);
+				goto done;
+			} else {
+				rssi = le32_to_cpu(scb_val.val);
+				sinfo->filled |= BIT(NL80211_STA_INFO_SIGNAL);
+				sinfo->signal = rssi;
+				brcmf_dbg(CONN, "RSSI %d dBm\n", rssi);
 			}
 		}
 		if (count_rssi) {
